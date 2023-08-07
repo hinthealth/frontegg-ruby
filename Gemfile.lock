@@ -40,7 +40,7 @@ GEM
     jwt (2.7.1)
     multipart-post (2.3.0)
     public_suffix (5.0.3)
-    rake (11.3.0)
+    rake (12.3.3)
     rexml (3.2.5)
     rspec (3.6.0)
       rspec-core (~> 3.6.0)
@@ -63,10 +63,11 @@ GEM
 
 PLATFORMS
   arm64-darwin-21
+  x86_64-linux
 
 DEPENDENCIES
   frontegg!
-  rake (~> 11.3.0)
+  rake (~> 12.3.3)
   rspec (~> 3.6.0)
   webmock (~> 3.18)
 
