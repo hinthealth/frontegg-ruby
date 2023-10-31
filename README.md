@@ -1,8 +1,8 @@
-## Frontegg Ruby Library
+# Frontegg Ruby Library
 
 This is a ruby lib that allows to use the [Frontegg API](https://docs.frontegg.com/reference/getting-started-with-your-api)
 
-### Setup
+## Setup
 
 To install using bundler:
 ```
@@ -18,7 +18,9 @@ Frontegg.configure do |config|
 end
 ```
 
-### Usage
+## Usage
+
+### Users
 
 #### Create user
 
@@ -88,4 +90,91 @@ Frontegg::User.new(frontegg_user_id).verify
 
 ```ruby
 Frontegg::User.new(frontegg_user_id).expire_sessions(session_id) # session_id is optional
+```
+
+### Tenants
+
+#### Create tenant
+
+```ruby
+Frontegg::Tenant.new.create(
+  name:,
+  website: nil,
+  logo_url: nil,
+  metadata: {}
+)
+```
+
+#### Update tenant
+
+```ruby
+Frontegg::Tenant.new(frontegg_tenant_id).create(
+  name:,
+  website: nil,
+  logo_url: nil,
+  metadata: {}
+)
+```
+
+
+#### Retrieve tenant
+
+```ruby
+Frontegg::Tenant.new(frontegg_tenant_id).retrieve
+```
+
+#### Delete tenant
+
+```ruby
+Frontegg::Tenant.new(frontegg_tenant_id).delete
+```
+
+### Passwords
+
+
+#### Update password
+
+```ruby
+Frontegg::Password.new.update(user_id:, password:, new_password:)
+```
+
+
+#### Create reset token
+
+```ruby
+Frontegg::Password.new.create_reset_token(user_id:)
+```
+
+#### Reset with token
+
+```ruby
+Frontegg::Password.new.reset_with_token(user_id:, token:, password:)
+```
+
+
+### MFAs
+
+
+#### Create
+
+```ruby
+Frontegg::Mfa.new.update(user_id:)
+```
+
+#### Verify
+
+```ruby
+Frontegg::Mfa.new.verify(token, user_id:)
+```
+
+#### Reset
+
+```ruby
+Frontegg::Mfa.new.reset(user_id:)
+```
+
+#### Enforce
+
+```ruby
+Frontegg::Mfa.new.enforce(enforce, device_expiration:, tenant_id: nil)
 ```
