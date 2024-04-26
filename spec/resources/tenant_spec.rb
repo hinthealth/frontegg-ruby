@@ -10,7 +10,8 @@ RSpec.describe Frontegg::Tenant, mock_frontegg: true do
 
     before do
       stub_request(:post, "#{frontegg_url}/tenants/resources/tenants/v1")
-        .with(body: { tenantId: tenant_id, name: 'example', website: nil, logoUrl: nil, metadata: {}.to_json })
+        .with(body: { tenantId: tenant_id, name: 'example', website: nil, logoUrl: nil, isReseller: false,
+                      metadata: {}.to_json })
         .to_return(status: 200)
     end
 
@@ -24,7 +25,7 @@ RSpec.describe Frontegg::Tenant, mock_frontegg: true do
 
     before do
       stub_request(:put, "#{frontegg_url}/tenants/resources/tenants/v1/#{tenant_id}")
-        .with(body: { name: 'another name', website: nil, logoUrl: nil, metadata: {}.to_json })
+        .with(body: { name: 'another name', website: nil, logoUrl: nil, isReseller: false, metadata: {}.to_json })
         .to_return(status: 200)
     end
 
@@ -42,6 +43,19 @@ RSpec.describe Frontegg::Tenant, mock_frontegg: true do
     end
 
     it 'retrieves tenant successfully' do
+      expect(response.status).to eq 200
+    end
+  end
+
+  describe '#list' do
+    subject(:response) { tenant_resource.list }
+
+    before do
+      stub_request(:get, "#{frontegg_url}/tenants/resources/tenants/v2?_filter&_limit")
+        .to_return(status: 200)
+    end
+
+    it 'retrieves tenants successfully' do
       expect(response.status).to eq 200
     end
   end
