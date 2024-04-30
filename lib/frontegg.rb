@@ -9,7 +9,6 @@ require 'frontegg/password'
 require 'frontegg/tenant'
 require 'frontegg/unauthenticated_error'
 require 'frontegg/user'
-require 'frontegg/hierarchy'
 
 module Frontegg
   def self.config

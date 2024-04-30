@@ -21,8 +21,14 @@ module Frontegg
     end
 
     def list(filter: nil, limit: nil)
-			path = "/tenants/resources/tenants/v2"
-      client.execute_request(:get, path, params: { _filter: filter, _limit: limit } )
+      path = "/tenants/resources/tenants/v2"
+      client.execute_request(:get, path, params: { _filter: filter, _limit: limit })
+    end
+
+    def add_parent_tenant(parent_id:)
+      path = '/tenants/resources/hierarchy/v1'
+      body = { childTenantId: resource_id, parentTenantId: parent_id }
+      client.execute_request(:post, path, body:)
     end
   end
 end
