@@ -8,6 +8,6 @@ Gem::Specification.new do |s|
   s.license               = 'MIT'
   s.required_ruby_version = '>= 2.7'
 
-  s.add_dependency 'faraday', '~> 1.10', '>= 1'
+  s.add_dependency 'faraday', '~> 2.9', '>= 1'
   s.add_dependency 'jwt', '~> 2.7.1', '>= 2'
 end
