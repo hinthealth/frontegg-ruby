@@ -59,4 +59,30 @@ RSpec.describe Frontegg::Tenant, mock_frontegg: true do
       expect(response.status).to eq 200
     end
   end
+
+  describe '#add_parent_tenant' do
+    subject(:response) { tenant_resource.add_parent_tenant(parent_id: 'parent_id') }
+
+    before do
+      stub_request(:post, "#{frontegg_url}/tenants/resources/hierarchy/v1")
+        .to_return(status: 200)
+    end
+
+    it 'adds parent tenant successfully' do
+      expect(response.status).to eq 200
+    end
+  end
+
+  describe '#remove_parent_tenant' do
+    subject(:response) { tenant_resource.remove_parent_tenant(parent_id: 'parent_id') }
+
+    before do
+      stub_request(:delete, "#{frontegg_url}/tenants/resources/hierarchy/v1")
+        .to_return(status: 200)
+    end
+
+    it 'removes parent tenant successfully' do
+      expect(response.status).to eq 200
+    end
+  end
 end

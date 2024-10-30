@@ -66,10 +66,15 @@ module Frontegg
       client.execute_request(:post, path)
     end
 
+    def accept_invitation(user_id:, token:)
+      url = "#{self.class.base_path}/invitation/accept"
+      client.execute_request(:post, url, body: { userId: user_id, token:})
+    end
+
     private
 
     def user_header
-      { 'frontegg-user-id': resource_id }
+    { 'frontegg-user-id': resource_id }
     end
   end
 end

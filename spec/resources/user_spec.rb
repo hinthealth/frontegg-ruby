@@ -58,7 +58,7 @@ RSpec.describe Frontegg::User, mock_frontegg: true do
     end
   end
 
-  describe '.migrate_existing' do
+  describe '#migrate_existing' do
     subject(:response) do
       Frontegg::User.new.migrate_existing(
         email: 'example@example.com',
@@ -71,6 +71,25 @@ RSpec.describe Frontegg::User, mock_frontegg: true do
 
     before do
       stub_request(:post, "#{frontegg_url}/identity/resources/migrations/v1/local")
+        .to_return(status: 200, body: { id: user_id }.to_json)
+    end
+
+    it 'migrates user successfully' do
+      expect(response.status).to eq 200
+      expect(response.body).to include('id')
+    end
+  end
+
+  describe '#accept_invitation' do
+    subject(:response) do
+      Frontegg::User.new.accept_invitation(
+        user_id: user_id,
+        token: 'token',
+      )
+    end
+
+    before do
+      stub_request(:post, "#{frontegg_url}/identity/resources/users/v1/invitation/accept")
         .to_return(status: 200, body: { id: user_id }.to_json)
     end
 

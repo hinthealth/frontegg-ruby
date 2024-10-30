@@ -30,5 +30,21 @@ module Frontegg
       body = { childTenantId: resource_id, parentTenantId: parent_id }
       client.execute_request(:post, path, body:)
     end
+
+    def remove_parent_tenant(parent_id:)
+      path = '/tenants/resources/hierarchy/v1'
+      body = { childTenantId: resource_id, parentTenantId: parent_id }
+      client.execute_request(:delete, path, body:)
+    end
+
+    def get_timeout(tenant_id)
+      path = "/identity/resources/configurations/sessions/v1"
+      client.execute_request(:get, path, tenant_id:)
+    end
+
+    def configure_timeout(tenant_id, time)
+      path = "/identity/resources/configurations/sessions/v1"
+      client.execute_request(:post, path, body: { sessionIdleTimeoutConfiguration: { isActive: false, timeout: time} }, tenant_id: )
+    end
   end
 end
