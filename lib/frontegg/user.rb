@@ -2,14 +2,14 @@ module Frontegg
   class User < Resource
     self.base_path = '/identity/resources/users/v1'
 
-    def create(email:, name:, tenant_id:, password: nil, metadata: {})
-      body = { email:, name:, password:, skipInviteEmail: true, metadata: metadata.to_json }
+    def create(email:, name:, tenant_id:, password: nil, metadata: {}, skip_invite_email: true)
+      body = { email:, name:, password:, skipInviteEmail: skip_invite_email, metadata: metadata.to_json }
       client.execute_request(:post, resource_url, body:, tenant_id:)
     end
 
-    def add_to_tenant(tenant_id)
+    def add_to_tenant(tenant_id, skip_invite_email: true)
       url = "#{resource_url}/tenant"
-      client.execute_request(:post, url, body: { tenantId: tenant_id, skipInviteEmail: true })
+      client.execute_request(:post, url, body: { tenantId: tenant_id, skipInviteEmail: skip_invite_email })
     end
 
     def switch_tenant(tenant_id)
