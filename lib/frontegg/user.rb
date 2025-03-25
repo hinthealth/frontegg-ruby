@@ -25,7 +25,7 @@ module Frontegg
       end
     end
 
-    def migrate_existing(email:, name:, password_hash:, metadata:, tenant_id:, mfa_code: nil)
+    def migrate_existing(email:, name:, password_hash:, metadata:, tenant_id:, mfa_code: nil, role_ids: [])
       body = {
         email:,
         passwordHash: password_hash,
@@ -35,6 +35,7 @@ module Frontegg
         metadata: metadata.to_json,
       }
       body[:authenticatorAppMfaSecret] = mfa_code if mfa_code
+      body[:roleIds] = role_ids if role_ids.any?
       client.execute_request(:post, 'identity/resources/migrations/v1/local', body:)
     end
 
@@ -69,6 +70,11 @@ module Frontegg
     def accept_invitation(user_id:, token:)
       url = "#{self.class.base_path}/invitation/accept"
       client.execute_request(:post, url, body: { userId: user_id, token:})
+    end
+
+    def add_role(role_id, tenant_id: nil)
+      path = "#{resource_url}/roles"
+      client.execute_request(:post, path, body: { roleIds: [role_id]}, tenant_id: tenant_id)
     end
 
     private
