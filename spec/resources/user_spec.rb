@@ -6,6 +6,78 @@ RSpec.describe Frontegg::User, mock_frontegg: true do
   let(:tenant_id) { 'tenant_123' }
   let(:user_resource) { Frontegg::User.new(user_id) }
 
+  describe '#create' do
+    let(:create_url) { "#{frontegg_url}/identity/resources/users/v1/" }
+
+    before do
+      stub_request(:post, create_url)
+        .to_return(status: 200)
+    end
+
+    context 'with no skip_invite_email param' do
+      subject(:create_user) do
+        Frontegg::User.new.create(
+          email: 'example@example.com',
+          name: 'John Doe',
+          tenant_id: tenant_id
+        )
+      end
+
+      it 'creates user with skipInviteEmail set to true' do
+        create_user
+        assert_requested(:post, create_url, body: hash_including(skipInviteEmail: true))
+      end
+    end
+
+    context 'with skip_invite_email param set to false' do
+      subject(:create_user) do
+        Frontegg::User.new.create(
+          email: 'example@example.com',
+          name: 'John Doe',
+          tenant_id: tenant_id,
+          skip_invite_email: skip_invite_email
+        )
+      end
+      let(:skip_invite_email) { false }
+
+      it 'creates user with skipInviteEmail set to false' do
+        create_user
+        assert_requested(:post, create_url, body: hash_including(skipInviteEmail: false))
+      end
+    end
+  end
+
+  describe '#add_to_tenant' do
+    let(:tenant_path) { "#{frontegg_url}/identity/resources/users/v1/#{user_id}/tenant" }
+
+    before do
+      stub_request(:post, tenant_path)
+        .to_return(status: 200)
+    end
+
+    context 'with no skip_invite_email param' do
+      subject(:add_to_tenant) do
+        user_resource.add_to_tenant(tenant_id)
+      end
+
+      it 'adds user to tenant with skipInviteEmail set to true' do
+        add_to_tenant
+        assert_requested(:post, tenant_path, body: { tenantId: tenant_id, skipInviteEmail: true })
+      end
+    end
+
+    context 'with skip_invite_email param set to false' do
+      subject(:add_to_tenant) do
+        user_resource.add_to_tenant(tenant_id, skip_invite_email: false)
+      end
+
+      it 'adds user to tenant with skipInviteEmail set to false' do
+        add_to_tenant
+        assert_requested(:post, tenant_path, body: { tenantId: tenant_id, skipInviteEmail: false })
+      end
+    end
+  end
+
   describe '#switch_tenant' do
     subject(:response) { user_resource.switch_tenant(tenant_id) }
 
