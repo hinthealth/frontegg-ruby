@@ -27,8 +27,7 @@ GEM
       uri
     public_suffix (5.0.3)
     rake (12.3.3)
-    rexml (3.2.8)
-      strscan (>= 3.0.9)
+    rexml (3.4.1)
     rspec (3.6.0)
       rspec-core (~> 3.6.0)
       rspec-expectations (~> 3.6.0)
@@ -42,7 +41,6 @@ GEM
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.6.0)
     rspec-support (3.6.0)
-    strscan (3.1.0)
     uri (0.13.0)
     webmock (3.18.1)
       addressable (>= 2.8.0)
