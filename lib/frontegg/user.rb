@@ -87,7 +87,7 @@ module Frontegg
     end
 
     def user_header
-    { 'frontegg-user-id': resource_id }
+      { 'frontegg-user-id': resource_id }
     end
   end
 end
