@@ -2,10 +2,8 @@ module Frontegg
   class User < Resource
     self.base_path = '/identity/resources/users/v1'
 
-    def create(email:, name:, tenant_id:, **params)
-      body = build_user_params(email: email, name: name, metadata: params[:metadata], role_ids: params[:role_ids])
-      body[:password] = params[:password] if params[:password]
-      body[:skipInviteEmail] = params.fetch(:skip_invite_email, true)
+    def create(email:, name:, tenant_id:, password: nil, metadata: {}, skip_invite_email: true)
+      body = { email:, name:, password:, skipInviteEmail: skip_invite_email, metadata: metadata.to_json }
       client.execute_request(:post, resource_url, body:, tenant_id:)
     end
 
@@ -27,12 +25,17 @@ module Frontegg
       end
     end
 
-    def migrate_existing(email:, name:, password_hash:, tenant_id:, **params)
-      body = build_user_params(email: email, name: name, metadata: params[:metadata], role_ids: params[:role_ids])
-      body[:passwordHash] = password_hash
-      body[:tenantId] = tenant_id
-      body[:authenticatorAppMfaSecret] = params[:mfa_code] if params[:mfa_code]
-      body[:skipInviteEmail] = true
+    def migrate_existing(email:, name:, password_hash:, metadata:, tenant_id:, mfa_code: nil, role_ids: [])
+      body = {
+        email:,
+        passwordHash: password_hash,
+        name:,
+        skipInviteEmail: true,
+        tenantId: tenant_id,
+        metadata: metadata.to_json,
+      }
+      body[:authenticatorAppMfaSecret] = mfa_code if mfa_code
+      body[:roleIds] = role_ids if role_ids.any?
       client.execute_request(:post, 'identity/resources/migrations/v1/local', body:)
     end
 
@@ -75,16 +78,6 @@ module Frontegg
     end
 
     private
-
-    def build_user_params(email:, name:, metadata: {}, role_ids: [])
-      body = {
-        email: email,
-        name: name,
-        metadata: metadata.to_json
-      }
-      body[:roleIds] = role_ids if role_ids&.any?
-      body
-    end
 
     def user_header
     { 'frontegg-user-id': resource_id }
