@@ -45,6 +45,22 @@ RSpec.describe Frontegg::User, mock_frontegg: true do
         assert_requested(:post, create_url, body: hash_including(skipInviteEmail: false))
       end
     end
+
+    context 'when roles are provided' do
+      subject(:response) do
+        Frontegg::User.new.create(
+          email: 'example@example.com',
+          name: 'John Doe',
+          tenant_id: tenant_id,
+          role_ids: ['role_123']
+        )
+      end
+
+      it 'migrates user successfully' do
+        expect(response.status).to eq 200
+        assert_requested(:post, create_url, body: hash_including(roleIds: ['role_123']))
+      end
+    end
   end
 
   describe '#add_to_tenant' do
