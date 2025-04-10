@@ -2,6 +2,7 @@
 
 This is a ruby lib that allows to use the [Frontegg API](https://docs.frontegg.com/reference/getting-started-with-your-api)
 
+
 ## Setup
 
 To install using bundler:
