@@ -2,7 +2,6 @@
 
 This is a ruby lib that allows to use the [Frontegg API](https://docs.frontegg.com/reference/getting-started-with-your-api)
 
-
 ## Setup
 
 To install using bundler:
@@ -13,9 +12,9 @@ gem 'frontegg', github: 'hinthealth/frontegg'
 
 ```ruby
 Frontegg.configure do |config|
-  config.client_id = 'your_client_id'
-  config.api_key =  'your_api_key'
-  config.log_enabled = false
+config.client_id = 'your_client_id'
+config.api_key =  'your_api_key'
+config.log_enabled = false
 end
 ```
 
@@ -27,11 +26,13 @@ end
 
 ```ruby
 Frontegg::User.new.create(
-  tenant_id:, # required
-  email:, # required
-  name:, # required
-  metadata:,
-  password:,
+tenant_id:, # required
+email:, # required
+name:, # required
+metadata: {},
+password: nil,
+role_ids: [],
+skip_invite_email: true
 )
 ```
 
@@ -39,21 +40,21 @@ Frontegg::User.new.create(
 
 ```ruby
 Frontegg::User.new.migrate_existing(
-  tenant_id:, # required
-  email:, # required
-  name:, # required
-  metadata:,
-  password_hash:,
-  mfa_code:,
+tenant_id:, # required
+email:, # required
+name:, # required
+password_hash:, # required
+metadata: {},
+role_ids: [],
+mfa_code: nil
 )
 ```
 
 #### Add user to tenant
 
 ```ruby
-Frontegg::User.new(frontegg_user_id).add_to_tenant(tenant_id)
+Frontegg::User.new(frontegg_user_id).add_to_tenant(tenant_id, skip_invite_email: true)
 ```
-
 
 #### Switch user tenant
 
@@ -67,7 +68,6 @@ Frontegg::User.new(frontegg_user_id).switch_tenant(tenant_id)
 Frontegg::User.new(frontegg_user_id).delete(tenant_id:) # tenant is optional
 ```
 
-
 #### Retrieve user
 
 ```ruby
@@ -77,9 +77,8 @@ Frontegg::User.new(frontegg_user_id).retrieve(tenant_id:) # tenant is optional
 #### Make super user
 
 ```ruby
-Frontegg::User.new(frontegg_user_id).make_superuser # tenant is optional
+Frontegg::User.new(frontegg_user_id).make_superuser
 ```
-
 
 #### Verify user
 
@@ -93,16 +92,28 @@ Frontegg::User.new(frontegg_user_id).verify
 Frontegg::User.new(frontegg_user_id).expire_sessions(session_id) # session_id is optional
 ```
 
+#### Accept invitation
+
+```ruby
+Frontegg::User.new.accept_invitation(user_id:, token:)
+```
+
+#### Add role
+
+```ruby
+Frontegg::User.new(frontegg_user_id).add_role(role_id, tenant_id: nil)
+```
+
 ### Tenants
 
 #### Create tenant
 
 ```ruby
 Frontegg::Tenant.new.create(
-  name:,
-  website: nil,
-  logo_url: nil,
-  metadata: {}
+name:,
+website: nil,
+logo_url: nil,
+metadata: {}
 )
 ```
 
@@ -110,13 +121,12 @@ Frontegg::Tenant.new.create(
 
 ```ruby
 Frontegg::Tenant.new(frontegg_tenant_id).create(
-  name:,
-  website: nil,
-  logo_url: nil,
-  metadata: {}
+name:,
+website: nil,
+logo_url: nil,
+metadata: {}
 )
 ```
-
 
 #### Retrieve tenant
 
@@ -132,13 +142,11 @@ Frontegg::Tenant.new(frontegg_tenant_id).delete
 
 ### Passwords
 
-
 #### Update password
 
 ```ruby
 Frontegg::Password.new.update(user_id:, password:, new_password:)
 ```
-
 
 #### Create reset token
 
@@ -152,9 +160,7 @@ Frontegg::Password.new.create_reset_token(user_id:)
 Frontegg::Password.new.reset_with_token(user_id:, token:, password:)
 ```
 
-
 ### MFAs
-
 
 #### Create
 
