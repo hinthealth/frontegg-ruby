@@ -46,5 +46,17 @@ module Frontegg
       path = "/identity/resources/configurations/sessions/v1"
       client.execute_request(:post, path, body: { sessionIdleTimeoutConfiguration: { isActive: false, timeout: time} }, tenant_id: )
     end
+
+    def create_invite(email:, name:, role_ids:, metadata: {})
+      path = '/identity/resources/invitations/v1/tenant'
+      body = {
+        tenantId: resource_id,
+        email: email,
+        name: name,
+        roleIds: role_ids,
+        metadata: metadata
+      }
+      client.execute_request(:post, path, body: body)
+    end
   end
 end

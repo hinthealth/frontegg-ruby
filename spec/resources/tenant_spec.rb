@@ -85,4 +85,66 @@ RSpec.describe Frontegg::Tenant, mock_frontegg: true do
       expect(response.status).to eq 200
     end
   end
+
+  describe '#create_invite' do
+    let(:email) { 'test@example.com' }
+    let(:name) { 'Test User' }
+    let(:role_ids) { ['role_1', 'role_2'] }
+    let(:metadata) { { custom_field: 'custom_value' } }
+    let(:expected_body) do
+      {
+        tenantId: tenant_id,
+        email: email,
+        name: name,
+        roleIds: role_ids,
+        metadata: metadata
+      }
+    end
+
+    subject(:response) { tenant_resource.create_invite(email: email, name: name, role_ids: role_ids, metadata: metadata) }
+
+    context 'when invitation is created successfully' do
+      before do
+        stub_request(:post, "#{frontegg_url}/identity/resources/invitations/v1/tenant")
+          .with(body: expected_body)
+          .to_return(status: 201, body: { id: 'invite_123' }.to_json)
+      end
+
+      it 'returns a successful response' do
+        expect(response.status).to eq 201
+      end
+
+      it 'calls the API with the correct parameters' do
+        response # Trigger the request
+        expect(
+          a_request(:post, "#{frontegg_url}/identity/resources/invitations/v1/tenant")
+          .with(body: expected_body)
+        ).to have_been_made.once
+      end
+    end
+
+    context 'when API returns an error (e.g., invalid input)' do
+      before do
+        stub_request(:post, "#{frontegg_url}/identity/resources/invitations/v1/tenant")
+          .with(body: expected_body)
+          .to_return(status: 400, body: { error: 'Invalid input' }.to_json)
+      end
+
+      it 'returns an error response' do
+        expect(response.status).to eq 400
+      end
+    end
+
+    context 'when API returns a server error' do
+      before do
+        stub_request(:post, "#{frontegg_url}/identity/resources/invitations/v1/tenant")
+          .with(body: expected_body)
+          .to_return(status: 500, body: { error: 'Server error' }.to_json)
+      end
+
+      it 'returns an error response' do
+        expect(response.status).to eq 500
+      end
+    end
+  end
 end
