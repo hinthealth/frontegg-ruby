@@ -87,28 +87,49 @@ RSpec.describe Frontegg::Tenant, mock_frontegg: true do
   end
 
   describe '#create_invite' do
-    let(:email) { 'test@example.com' }
-    let(:name) { 'Test User' }
-    let(:role_ids) { ['role_1', 'role_2'] }
-    let(:metadata) { { custom_field: 'custom_value' } }
-    let(:expected_body) do
+    let(:base_metadata) { { custom_field: 'custom_value' } }
+    let(:user_id) { 'usr_123' }
+    let(:expires_in_minutes) { 60 }
+    let(:should_send_email) { true }
+    let(:api_path) { "#{frontegg_url}/identity/resources/tenants/invites/v1" }
+
+    # Default subject calling with all parameters
+    subject(:response) do
+      tenant_resource.create_invite(
+        user_id: user_id,
+        expires_in_minutes: expires_in_minutes,
+        should_send_email: should_send_email,
+        metadata: base_metadata
+      )
+    end
+
+    let(:full_expected_body) do
       {
         tenantId: tenant_id,
-        email: email,
-        name: name,
-        roleIds: role_ids,
-        metadata: metadata
+        userId: user_id,
+        expiresInMinutes: expires_in_minutes,
+        shouldSendEmail: should_send_email,
+        metadata: base_metadata
       }
     end
 
-    subject(:response) { tenant_resource.create_invite(email: email, name: name, role_ids: role_ids, metadata: metadata) }
+    let(:minimal_expected_body) do
+      {
+        tenantId: tenant_id,
+        metadata: base_metadata
+      }
+    end
 
-    context 'when invitation is created successfully' do
+    shared_context 'stubbed_api_call' do |status:, body_to_match:, response_body: {}|
       before do
-        stub_request(:post, "#{frontegg_url}/identity/resources/invitations/v1/tenant")
-          .with(body: expected_body)
-          .to_return(status: 201, body: { id: 'invite_123' }.to_json)
+        stub_request(:post, api_path)
+          .with(body: body_to_match)
+          .to_return(status: status, body: response_body.to_json, headers: { 'Content-Type' => 'application/json' })
       end
+    end
+
+    context 'when invitation is created successfully with all parameters' do
+      include_context 'stubbed_api_call', status: 201, body_to_match: :full_expected_body, response_body: { id: 'invite_123' }
 
       it 'returns a successful response' do
         expect(response.status).to eq 201
@@ -116,19 +137,54 @@ RSpec.describe Frontegg::Tenant, mock_frontegg: true do
 
       it 'calls the API with the correct parameters' do
         response # Trigger the request
-        expect(
-          a_request(:post, "#{frontegg_url}/identity/resources/invitations/v1/tenant")
-          .with(body: expected_body)
-        ).to have_been_made.once
+        expect(a_request(:post, api_path).with(body: full_expected_body)).to have_been_made.once
+      end
+    end
+
+    context 'when invitation is created successfully with only metadata' do
+      subject(:response) { tenant_resource.create_invite(metadata: base_metadata) } # Override subject
+      include_context 'stubbed_api_call', status: 201, body_to_match: :minimal_expected_body, response_body: { id: 'invite_456' }
+
+
+      it 'returns a successful response' do
+        expect(response.status).to eq 201
+      end
+
+      it 'calls the API with minimal parameters' do
+        response # Trigger the request
+        expect(a_request(:post, api_path).with(body: minimal_expected_body)).to have_been_made.once
+      end
+    end
+
+    context 'when invitation is created successfully with should_send_email as false' do
+      subject(:response) do
+        tenant_resource.create_invite(
+          should_send_email: false,
+          metadata: base_metadata
+        )
+      end
+      let(:current_expected_body) do
+        {
+          tenantId: tenant_id,
+          shouldSendEmail: false,
+          metadata: base_metadata
+        }
+      end
+      include_context 'stubbed_api_call', status: 201, body_to_match: :current_expected_body, response_body: { id: 'invite_789' }
+
+      it 'returns a successful response' do
+        expect(response.status).to eq 201
+      end
+
+      it 'calls the API with shouldSendEmail as false' do
+        response
+        expect(a_request(:post, api_path).with(body: current_expected_body)).to have_been_made.once
       end
     end
 
     context 'when API returns an error (e.g., invalid input)' do
-      before do
-        stub_request(:post, "#{frontegg_url}/identity/resources/invitations/v1/tenant")
-          .with(body: expected_body)
-          .to_return(status: 400, body: { error: 'Invalid input' }.to_json)
-      end
+      # For error cases, the request body being sent is still the full one by default subject
+      include_context 'stubbed_api_call', status: 400, body_to_match: :full_expected_body, response_body: { error: 'Invalid input' }
 
       it 'returns an error response' do
         expect(response.status).to eq 400
@@ -136,11 +192,7 @@ RSpec.describe Frontegg::Tenant, mock_frontegg: true do
     end
 
     context 'when API returns a server error' do
-      before do
-        stub_request(:post, "#{frontegg_url}/identity/resources/invitations/v1/tenant")
-          .with(body: expected_body)
-          .to_return(status: 500, body: { error: 'Server error' }.to_json)
-      end
+      include_context 'stubbed_api_call', status: 500, body_to_match: :full_expected_body, response_body: { error: 'Server error' }
 
       it 'returns an error response' do
         expect(response.status).to eq 500

@@ -47,16 +47,18 @@ module Frontegg
       client.execute_request(:post, path, body: { sessionIdleTimeoutConfiguration: { isActive: false, timeout: time} }, tenant_id: )
     end
 
-    def create_invite(email:, name:, role_ids:, metadata: {})
-      path = '/identity/resources/invitations/v1/tenant'
-      body = {
+    def create_invite(user_id: nil, expires_in_minutes: nil, should_send_email: nil, metadata: {})
+      path = '/identity/resources/tenants/invites/v1' # New endpoint
+      payload = {
         tenantId: resource_id,
-        email: email,
-        name: name,
-        roleIds: role_ids,
         metadata: metadata
       }
-      client.execute_request(:post, path, body: body)
+
+      payload[:userId] = user_id if user_id
+      payload[:expiresInMinutes] = expires_in_minutes if expires_in_minutes
+      payload[:shouldSendEmail] = should_send_email unless should_send_email.nil?
+
+      client.execute_request(:post, path, body: payload)
     end
   end
 end
