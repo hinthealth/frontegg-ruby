@@ -74,6 +74,11 @@ module Frontegg
       client.execute_request(:post, path, body: { roleIds: [role_id]}, tenant_id: tenant_id)
     end
 
+    def list(tenant_id: nil)
+      path = "/identity/resources/users/v3"
+      client.execute_request(:get, path, tenant_id:)
+    end
+
     private
 
     def build_user_params(email:, name:, metadata: {}, role_ids: [])
