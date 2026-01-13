@@ -2,7 +2,7 @@ PATH
   remote: .
   specs:
     frontegg (0.0.1)
-      faraday (~> 2.12, >= 1)
+      faraday (~> 2.12)
       jwt (~> 2.7.1, >= 2)
 
 GEM
