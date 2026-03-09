@@ -74,6 +74,11 @@ module Frontegg
       client.execute_request(:post, path, body: { roleIds: [role_id]}, tenant_id: tenant_id)
     end
 
+    def remove_role(role_id, tenant_id: nil)
+      path = "#{resource_url}/roles"
+      client.execute_request(:delete, path, body: { roleIds: [role_id]}, tenant_id: tenant_id)
+    end
+
     def list(tenant_id: nil)
       path = "/identity/resources/users/v3"
       client.execute_request(:get, path, tenant_id:)

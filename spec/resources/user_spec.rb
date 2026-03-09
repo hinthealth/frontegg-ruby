@@ -238,4 +238,37 @@ RSpec.describe Frontegg::User, mock_frontegg: true do
       end
     end
   end
+
+  describe '#remove_role' do
+    let(:role_id) { 'role_123' }
+
+    context 'when tenant_id is provided' do
+      subject(:response) { user_resource.remove_role(role_id, tenant_id: tenant_id) }
+
+      before do
+        stub_request(:delete, "#{frontegg_url}/identity/resources/users/v1/#{user_id}/roles")
+          .with(headers: { 'frontegg-tenant-id' => tenant_id })
+          .with(body: { roleIds: [role_id] })
+          .to_return(status: 200)
+      end
+
+      it 'removes role successfully' do
+        expect(response.status).to eq 200
+      end
+    end
+
+    context 'when tenant_id is not provided' do
+      subject(:response) { user_resource.remove_role(role_id) }
+
+      before do
+        stub_request(:delete, "#{frontegg_url}/identity/resources/users/v1/#{user_id}/roles")
+          .with(body: { roleIds: [role_id] })
+          .to_return(status: 200)
+      end
+
+      it 'removes role successfully' do
+        expect(response.status).to eq 200
+      end
+    end
+  end
 end
