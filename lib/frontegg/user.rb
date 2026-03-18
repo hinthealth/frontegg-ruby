@@ -19,9 +19,11 @@ module Frontegg
       client.execute_request(:put, url, body: { tenantId: tenant_id })
     end
 
-    def update(email: nil, name: nil, metadata: {})
+    def update(email: nil, name: nil, metadata: {}, phone_number: nil)
       if name
-        client.execute_request(:put, resource_url, body: { name:, metadata: metadata.to_json })
+        body = { name:, metadata: metadata.to_json }
+        body[:phoneNumber] = phone_number if phone_number
+        client.execute_request(:put, resource_url, body:)
       elsif email
         client.execute_request(:put, "#{resource_url}/email", body: { email: })
       end
