@@ -3,13 +3,14 @@ PATH
   specs:
     frontegg (0.0.1)
       faraday (~> 2.12)
-      jwt (~> 2.7.1, >= 2)
+      jwt (~> 2.7, >= 2.7.1)
 
 GEM
   remote: https://rubygems.org/
   specs:
     addressable (2.8.4)
       public_suffix (>= 2.0.2, < 6.0)
+    base64 (0.3.0)
     crack (0.4.5)
       rexml
     diff-lcs (1.5.0)
@@ -21,7 +22,8 @@ GEM
       net-http
     hashdiff (1.0.1)
     json (2.10.2)
-    jwt (2.7.1)
+    jwt (2.10.3)
+      base64
     logger (1.6.6)
     net-http (0.4.1)
       uri
