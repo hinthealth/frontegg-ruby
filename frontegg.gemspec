@@ -9,5 +9,5 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '>= 2.7'
 
   s.add_dependency 'faraday', '~> 2.12'
-  s.add_dependency 'jwt', '~> 2.7.1', '>= 2'
+  s.add_dependency 'jwt', '~> 2.7', '>= 2.7.1'
 end
