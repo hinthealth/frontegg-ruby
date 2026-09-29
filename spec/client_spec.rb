@@ -47,6 +47,18 @@ RSpec.describe Frontegg::Client do
         end
       end
 
+      context 'when frontegg is rate limiting us' do
+        let(:path) { '/tenants/resources/tenants/v1' }
+
+        before do
+          stub_request(:get, "#{frontegg_url}#{path}").to_return(status: 429)
+        end
+
+        it 'fails with too many requests, not with an invalid request' do
+          expect { response }.to raise_error(Frontegg::TooManyRequestsError)
+        end
+      end
+
       context 'when the route is incorrect' do
         let(:path) { '/tenants/resources/tena/v1' }
 
