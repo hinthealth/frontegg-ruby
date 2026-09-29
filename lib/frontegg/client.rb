@@ -56,6 +56,7 @@ module Frontegg
       ->(response) do
         fail Frontegg::NotFoundError if response.status.eql?(404)
         fail Frontegg::UnauthenticatedError, parse_error(response) if response.status.eql?(401)
+        fail Frontegg::TooManyRequestsError, parse_error(response) if response.status.eql?(429)
         fail Frontegg::InvalidRequestError, parse_error(response) unless response.success?
       end
     end
