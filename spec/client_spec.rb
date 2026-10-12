@@ -66,8 +66,54 @@ RSpec.describe Frontegg::Client do
           stub_request(:get, "#{frontegg_url}#{path}").to_return(status: 404)
         end
 
-        it 'fails with not found' do
-          expect { response }.to raise_error(Frontegg::NotFoundError)
+        it 'fails with not found, naming the request' do
+          expect { response }.to raise_error(Frontegg::NotFoundError, "GET #{path}")
+        end
+      end
+
+      context 'when the thing is missing only inside a tenant' do
+        subject(:response) { client.execute_request(:get, path, tenant_id: 'org-abc') }
+
+        let(:path) { '/identity/resources/users/v1/some-user-id' }
+
+        before do
+          stub_request(:get, "#{frontegg_url}#{path}").to_return(status: 404)
+        end
+
+        it 'names the tenant that scoped the lookup' do
+          expect { response }
+            .to raise_error(Frontegg::NotFoundError, "GET #{path}, tenant org-abc")
+        end
+      end
+
+      context 'when a 404 carries an error body' do
+        let(:path) { '/tenants/resources/tena/v1' }
+
+        before do
+          stub_request(:get, "#{frontegg_url}#{path}")
+            .to_return(
+              status: 404,
+              body: { errors: ['Tenant not found'] }.to_json,
+              headers: { content_type: 'application/json' }
+            )
+        end
+
+        it 'includes what frontegg said' do
+          expect { response }
+            .to raise_error(Frontegg::NotFoundError, "GET #{path}, Tenant not found")
+        end
+      end
+
+      context 'when an error body is not a hash' do
+        let(:path) { '/tenants/resources/tena/v1' }
+
+        before do
+          stub_request(:get, "#{frontegg_url}#{path}").to_return(status: 500, body: 'upstream exploded')
+        end
+
+        it 'passes the body through instead of raising on it' do
+          expect { response }
+            .to raise_error(Frontegg::InvalidRequestError, 'upstream exploded')
         end
       end
     end
