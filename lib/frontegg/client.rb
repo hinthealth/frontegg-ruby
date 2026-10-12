@@ -54,16 +54,32 @@ module Frontegg
 
     def check_response
       ->(response) do
-        fail Frontegg::NotFoundError if response.status.eql?(404)
+        fail Frontegg::NotFoundError, not_found_message(response) if response.status.eql?(404)
         fail Frontegg::UnauthenticatedError, parse_error(response) if response.status.eql?(401)
         fail Frontegg::TooManyRequestsError, parse_error(response) if response.status.eql?(429)
         fail Frontegg::InvalidRequestError, parse_error(response) unless response.success?
       end
     end
 
+    # A 404 body is usually empty, so the request is the only thing that says
+    # what was not found - and the tenant header is what scoped the lookup.
+    def not_found_message(response)
+      tenant_id = response.env.request_headers['frontegg-tenant-id']
+      error = parse_error(response).to_s
+
+      [
+        "#{response.env.method.to_s.upcase} #{response.env.url.path}",
+        ("tenant #{tenant_id}" if tenant_id),
+        (error unless error.empty?),
+      ].compact.join(', ')
+    end
+
     def parse_error(response)
-      response_body = response.body
-      message = response_body['errors']&.first || response_body
+      body = response.body
+
+      return body unless body.is_a?(Hash)
+
+      body['errors']&.first || body
     end
 
     def token_expired?
