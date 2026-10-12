@@ -1,0 +1,19 @@
+.circleci/config.yml
+  s_36c6a2befa997b::t_7ed34db9e526a8 5,52-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "35409237f0cc7c9c322e46770ad4c08366eb5eaa",
+  "prompts": {},
+  "sessions": {
+    "s_36c6a2befa997b": {
+      "agent_id": {
+        "tool": "claude",
+        "id": "9ded04f0-c4bd-458a-b8e3-1a4a2ac60a7d",
+        "model": "claude-opus-5-5"
+      },
+      "human_author": "MaicolBen <maicol.bentancor@gmail.com>"
+    }
+  }
+}
